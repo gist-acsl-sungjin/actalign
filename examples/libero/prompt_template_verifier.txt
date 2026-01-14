@@ -1,0 +1,32 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: MIT
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
+Given the observation images of a sampled action plan (the first image is the initial state, the second image is the final state from the agent view and the last image is the the final state from wrist view, The gripper is at the bottom of the wrist view image), you are an external verifier. Help the robot agent describe the action and determine if it achieves the specified subtask.
+Subtask: {TASK_INSTRUCTION}.
+Your verification must follow this logical process:
+Identify the target object in the first image. The target object is present in the first image. If you don't see it, look again for the target object because it is occluded behind other items. Pay attention to the shape (e.g. can or box). Try your best to find the most relevant object in the first image if you think there is no exact match as the target object.  Describe where it is located. 
+If the subtask is about picking, analyze both the wrist view and the agent view of the final state to check:
+a) For objects not a pot or a bowl, Is the robot's gripper holding the target object with right shape (box vs can) ? Is the object staying secure between the gripper? For a pot or a bowl, is the gripper holding any part of the pot or the bowl (check if any part is between the gripper in the wrist view, not considering security as long as it is in contact )?
+If the subtask is about placing, analyze the wrist view and the agent view of the final state to check:
+b) Is the object in/on the target place? If object is not visible, compare the first and second image to see whether target object disappears from the table. If the object is a mug, the final pose should not be tilted in the agentview. If the object is a pot, it should be in contact with the red region in the agentview. 
+If the subtask is about closing, analyze the wrist view and the agent view of the final state to check:
+c) Is the object fully closed?
+Determine the outcome based on this intermediate thinking.
+Finally, provide your verification in the format "Verification: Success" or "Verification: Failure".

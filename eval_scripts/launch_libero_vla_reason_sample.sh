@@ -1,0 +1,53 @@
+#!/bin/bash
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: MIT
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
+visual_ood=0 
+semantic_ood=0 
+behavior_ood=0 
+num_samples=1
+while getopts ":p:n:v:s:b:" opt; do
+  case $opt in
+    p)
+      port="$OPTARG"
+      ;;
+    n)
+      num_samples="$OPTARG"
+      ;;
+    v)
+      visual_ood="$OPTARG"
+      ;;
+    s)
+      semantic_ood="$OPTARG"
+      ;;
+    b)
+      behavior_ood="$OPTARG"
+      ;;
+    \?)
+      echo "Invalid option -$OPTARG" >&2
+      echo "Usage: $0 [-p port] [-n num_samples] [-v visual_ood] [-s semantic_ood] [-b behavior_ood]">&2
+      exit 1
+      ;;
+  esac
+done
+export PYTHONPATH=$PYTHONPATH:$PWD/third_party/libero
+source examples/libero/.venv/bin/activate
+export PATH="$(pwd)/examples/libero/.venv/bin:$PATH"
+python examples/libero/eval_libero_reason_sample.py --args.port=$port --args.task-suite-name=libero_10 --args.no-temporal-agg --args.use-wrist-image --args.batch-size=$num_samples --args.visual-ood=$visual_ood --args.semantic-ood=$semantic_ood --args.behavior-ood=$behavior_ood

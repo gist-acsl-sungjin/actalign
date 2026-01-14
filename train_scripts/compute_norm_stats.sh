@@ -1,0 +1,63 @@
+#!/bin/bash
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: MIT
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
+source "config_scripts/config.sh"
+while getopts "m:" opt; do
+  case $opt in
+    m)
+      model_type="$OPTARG"
+      ;;
+    \?)
+      echo "Invalid option -$OPTARG" >&2
+      echo "Usage: $0  [-m model_type]">&2
+      exit 1
+      ;;
+  esac
+done
+if [ "$model_type" = "pi0_libero_100_reason" ]; then
+
+  config_reason_path="pi0_libero_100_reason_wrist_image_no_history"
+  reasoning_json_path="--reasoning_json_path $LEROBOT_HOME"
+elif [ "$model_type" = "pi0_libero_100" ]; then
+  config_path="pi0_libero_100"
+elif [ "$model_type" = "pi0_libero_10_reason" ]; then
+
+  config_reason_path="pi0_libero_reason_wrist_image_no_history"
+  reasoning_json_path="--reasoning_json_path $LEROBOT_HOME"
+elif [ "$model_type" = "pi0_libero_10" ]; then
+  config_path="pi0_libero_10"
+elif [ "$model_type" = "pi0_libero_100_basket_reason" ]; then
+
+  config_reason_path="pi0_libero_100_basket_reason_wrist_image_no_history"
+  reasoning_json_path="--reasoning_json_path $LEROBOT_HOME"
+elif [ "$model_type" = "pi0_libero_100_basket" ]; then
+  config_path="pi0_libero_100_basket"
+fi
+if [[ "$model_type" == *"reason"* ]]; then
+CUDA_VISIBLE_DEVICES=0 uv run scripts/compute_norm_stats.py $config_reason_path --exp-name=computing-norm \
+--create_train_val_split --val_ratio=0.05 \
+$reasoning_json_path \
+--is_computing_norm_stats
+else 
+    CUDA_VISIBLE_DEVICES=0 uv run scripts/compute_norm_stats.py $config_path --exp-name=computing-norm 
+fi
+
+# cp -r assets/$config assets/$config_reason_path

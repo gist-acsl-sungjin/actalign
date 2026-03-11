@@ -64,8 +64,9 @@ lerobot = { git = "https://github.com/yilin-wu98/lerobot", rev = "9fd257082acd53
 [tool.uv.workspace]
 members = ["packages/*"]
 
-[[tool.uv.index]]
-url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+# av 14.0.0 install error
+# [[tool.uv.index]]
+# url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 
 [tool.ruff]
 line-length = 120

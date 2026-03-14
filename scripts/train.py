@@ -152,11 +152,21 @@ def init_train_state(
     partial_params = _load_weights_and_validate(config.weight_loader, train_state_shape.params.to_pure_dict())
     replicated_sharding = jax.sharding.NamedSharding(mesh, jax.sharding.PartitionSpec())
 
+    # pre-shard partial_params to match the targe params sharding.
+    # without this, JAX places the full checkpoint on every GPU,
+    # which causes OOM when the model is large
+    params_shape = jax.tree_util.tree_map(
+            lambda x: jax.ShapeDtypeStruct(x.shape, x.dtype), partial_params
+    )
+    params_sharding = sharding.fsdp_sharding(params_shape, mesh)
+    partial_params = jax.device_put(partial_params, params_sharding)
+
+
     # Initialize the train state and mix in the partial params.
     train_state = jax.jit(
         init,
         donate_argnums=(1,),  # donate the partial params buffer.
-        in_shardings=replicated_sharding,
+        in_shardings=(replicated_sharding, params_sharding),
         out_shardings=state_sharding,
     )(init_rng, partial_params)
 

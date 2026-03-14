@@ -95,6 +95,23 @@ fi
 
 
 # reasoning_json_path="$PROJECT_FOLDER/../lerobot"
-GIT_LFS_SKIP_SMUDGE=1 XLA_PYTHON_CLIENT_MEM_FRACTION=0.95 uv run scripts/train.py $config \
---exp-name=$config --batch-size=$batch_size  --val-batch-size=$val_batch_size \
-$reasoning_json_path $resume $overwrite
+
+# base train script
+# GIT_LFS_SKIP_SMUDGE=1 XLA_PYTHON_CLIENT_MEM_FRACTION=0.95 uv run scripts/train.py $config \
+# --exp-name=$config --batch-size=$batch_size  --val-batch-size=$val_batch_size \
+# $reasoning_json_path $resume $overwrite
+
+# changed script
+export XLA_FLAGS="--xla_gpu_enable_triton_softmax_fusion=true --xla_gpu_graph_level=0"
+export JAXTYPING_DTYPE_CHECK=off
+export JAX_TRACEBACK_FILTERING=off
+export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7,8
+export XLA_PYTHON_CLIENT_PREALLOCATE=false
+export GIT_LFS_SKIP_SMUDGE=1
+
+uv run scripts/train.py $config \
+    --exp-name="${config}_a30_8gpu" \
+    --batch-size=$batch_size \
+    --val-batch-size=$val_batch_size \
+    --fsdp-devices=8 \
+    --overwrite $resume

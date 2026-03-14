@@ -53,7 +53,7 @@ dev = [
     "ipykernel>=6.29.5",
     "ipywidgets>=8.1.5",
     "matplotlib>=3.10.0",
-    "pynvml>=12.0.0",
+    "nvidia-ml-py>=13.590.48",
 ]
 
 

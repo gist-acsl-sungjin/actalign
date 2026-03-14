@@ -1,2 +1,14 @@
 # exclude configuration info.
 config_scripts/*
+
+# python bytecode
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# model related large files
+checkpoints/
+wandb/
+results/
+logs/

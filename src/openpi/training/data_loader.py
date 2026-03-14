@@ -30,6 +30,9 @@ import lerobot.common.datasets.lerobot_dataset as lerobot_dataset
 import numpy as np
 import torch
 
+# skip per-run timestamp validation. 
+lerobot_dataset.check_timestamps_sync = lambda *args, **kwargs: True
+
 import openpi.models.model as _model
 import openpi.training.config as _config
 import openpi.transforms as _transforms

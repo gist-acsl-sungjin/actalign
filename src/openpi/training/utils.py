@@ -1,6 +1,6 @@
 import pprint
 from collections.abc import Callable
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 import jax
 import optax
@@ -11,6 +11,11 @@ import openpi.shared.download as download
 from openpi.models import model as _model
 from openpi.shared import array_typing as at
 
+# for type checking
+if TYPE_CHECKING:
+    OptStateType = optax.OptState
+else:
+    OptStateType = Any
 
 @at.typecheck
 @struct.dataclass
@@ -18,7 +23,7 @@ class TrainState:
     step: at.Int[at.ArrayLike, ""]
     params: nnx.State
     model_def: nnx.GraphDef[_model.BaseModel]
-    opt_state: optax.OptState
+    opt_state: OptStateType # optax.OptState = chex.ArrayTree, a recursive Union beartype cannot check at runtime
     tx: optax.GradientTransformation = struct.field(pytree_node=False)
 
     ema_decay: float | None = struct.field(pytree_node=False)
